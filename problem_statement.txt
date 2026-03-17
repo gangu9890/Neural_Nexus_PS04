@@ -1,0 +1,118 @@
+3. Reliability 
+No duplicate meetings. 
+Proper email formatting and disclaimers. 
+4. Security 
+Secure handling of email credentials and tokens. 
+5. User Experience o Clean configuration interface. 
+Clear scheduling confirmations.
+Expected Outcome 
+A fully functional AI email assistant capable of autonomously coordinating
+meetings and responding to update requests, significantly reducing manual
+email overhead.
+PROBLEM STATEMENT 04
+AI-Powered Autonomous Drone Response for
+Urban Safety
+Domain: AI 
+Background 
+As cities grow in scale and complexity, ensuring public safety in real time has
+become a major challenge. Traditional surveillance systems are passive and rely
+heavily on manual monitoring, which leads to delayed responses during
+emergencies such as public disturbances, accidents, unauthorized intrusions,
+and suspicious activities.
+With the evolution of Artificial Intelligence, real-time video analytics, geospatial
+intelligence, and autonomous aerial systems, it is now possible to build proactive
+safety platforms that can: • Detect incidents automatically • Dispatch the nearest
+responder • Provide live situational awareness to control centre This hackathon
+challenges participants to design a simulation-based AI-powered aerial urban
+safety system that improves emergency response time and enables smarter
+city-wide monitoring.Problem Statement 
+Build an AI-powered urban safety platform that: 
+• Detects safety incidents from video feeds using computer vision 
+• Associates detected incidents with a geolocation (simulated or mapped) 
+• Automatically dispatches the nearest available drone (simulated) 
+• Displays real-time drone movement on a map-based command dashboard 
+• Provides live incident monitoring and status updates The solution must
+demonstrate a complete working flow from: Video Input → AI Detection → Alert
+Generation → Drone Dispatch → Live Map Visualization Physical drones are not
+required. All drone behaviour and movement can be simulated in software.
+Key Features 
+AI-Based Incident Detection (from Video Feeds)
+Participants may use live camera input or sample/pre-recorded videos. The
+system should detect one or more of the following: 
+• Sudden crowd gathering in a low-density area 
+• Road accidents or fallen individuals 
+• Unauthorized entry into restricted zones 
+• Suspicious vehicle stops 
+• Abandoned objects 
+• Traffic rule violations (optional) 
+Upon detection, the system should: 
+ Trigger an alert 
+Highlight the incident on the map 
+Display incident details (type, time, location, source feed) 
+Note: Face recognition is not required and should not be implemented.
+Drone Movement Visualization (Mandatory) 
+The system must show real-time drone movement, including: 
+• Current position updates 
+• Route from drone to incident location 
+• Estimated time of arrival (ETA)Drone movement can be simulated using: 
+• Mobile GPS • Predefined coordinate paths 
+• Programmatically generated telemetry Smart Navigation & Safety (Simulation-
+Based) 
+• Route optimization to the incident location 
+• No-fly zone avoidance using geofencing 
+• Basic obstacle or collision avoidance logic (optional) 
+Command & Control Dashboard 
+A unified interface that displays: 
+• Live drone locations on a map 
+• Active alerts with severity indicators 
+• Video feed of the responding drone / source 
+• Drone status, ETA, and battery levels 
+• Incident timeline and logs
+Technical Requirements
+Participants should: 
+• Use free and preferably open-source AI/ML models 
+• Use simulated video feeds 
+• Use simulated drone telemetry (mobile GPS, mock APIs, or predefined paths) 
+• Implement real-time or near-real-time alert generation 
+• Build an interactive user interface for monitoring and control Cloud usage is
+allowed but not mandatory. 
+Bonus Features (For Extra Points!) 
+• Edge AI (running detection on the drone/mobile device) 
+• Intelligent alert prioritization 
+• False positive filtering 
+• Multi-incident handling with smart drone allocation 
+• SOS trigger from a mobile application 
+• Offline or low-bandwidth mode 
+• Predictive high-risk zone heatmapEvaluation Criteria 
+1. Functionality 
+• Working end-to-end system 
+• Successful detection → alert → drone dispatch → live tracking flow 
+• Real-time system behaviour 
+2. Innovation 
+• Intelligent fleet coordination 
+• Smart routing and prioritization logic 
+• Scalable and modular architecture 
+3. AI Implementation 
+• Effective use of pre-trained models 
+• Relevance and accuracy of detections 
+• Real-time performance 
+4. User Interface & Visualization 
+• Interactive and intuitive dashboard 
+• Real-time map-based tracking 
+• Clear incident monitoring experience 
+5. System Design & Scalability 
+• Ability to handle multiple drones and incidents 
+• Clean and extensible architecture 
+6. Presentation & Demo 
+• Clear urban safety use case 
+• Strong working demonstration with live flow
+Expected Outcome 
+A working prototype that demonstrates: 
+• Real-time AI-based incident detection from video 
+• Autonomous drone dispatch using simulated telemetry 
+• Live command center visualization with moving drones 
+The solution should showcase how intelligent aerial systems can significantly
+enhance: 
+• Urban safety 
+• Emergency response time 
+• Smart city operations
