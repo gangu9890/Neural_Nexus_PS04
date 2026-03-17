@@ -58,44 +58,21 @@ class ObjectDetector:
         
         try:
             # Fix for PyTorch 2.6+ weights_only=True default
-            try:
-                import torch
-                # 1. Try Ultralytics settings override
-                from ultralytics import settings
-                if hasattr(settings, 'update'):
-                    settings.update({'weights_only': False})
-                
-                # 2. Add all ultralytics modules to safe globals
-                from ultralytics.nn.tasks import DetectionModel
-                import ultralytics.nn.modules as nn_modules
-                
-                if hasattr(torch.serialization, 'add_safe_globals'):
-                    # Add standard PyTorch containers
-                    safe_list = [
-                        torch.nn.modules.container.Sequential,
-                        torch.nn.modules.container.ModuleList,
-                        torch.nn.modules.activation.SiLU,
-                        torch.nn.modules.conv.Conv2d,
-                        torch.nn.modules.batchnorm.BatchNorm2d,
-                        torch.nn.modules.pooling.MaxPool2d,
-                        torch.nn.modules.upsampling.Upsample,
-                        DetectionModel
-                    ]
-                    
-                    # Add all Ultralytics custom modules
-                    for name in dir(nn_modules):
-                        obj = getattr(nn_modules, name)
-                        if isinstance(obj, type):
-                            safe_list.append(obj)
-                            
-                    torch.serialization.add_safe_globals(safe_list)
-                    logger.info("Added necessary classes to PyTorch safe globals")
-            except Exception as e:
-                logger.warning(f"Failed to configure safe globals/settings: {e}")
+            # Monkey-patch torch.load to use weights_only=False
+            import torch
+            _original_torch_load = torch.load
+            torch.load = lambda *args, **kwargs: _original_torch_load(
+                *args, **{**kwargs, 'weights_only': False}
+            )
+            logger.info("Patched torch.load for PyTorch 2.6+ compatibility")
 
-            self.model = YOLO(self.model_name)
-            self.model.to(self.device)
-            
+            try:
+                self.model = YOLO(self.model_name)
+                self.model.to(self.device)
+            finally:
+                # Always restore original torch.load
+                torch.load = _original_torch_load
+
             # Get COCO class names
             self.class_names = self.model.names
             
