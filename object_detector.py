@@ -57,7 +57,6 @@ class ObjectDetector:
         logger.info(f"Loading YOLOv8 model: {self.model_name} on {self.device}")
         
         try:
-        try:
             # Fix for PyTorch 2.6+ weights_only=True default
             try:
                 import torch
