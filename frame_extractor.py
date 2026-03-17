@@ -217,27 +217,45 @@ class VideoWriter:
     Writes frames to video file
     """
     
-    def __init__(self, output_path: str, frame_width: int, frame_height: int, 
+    def __init__(self, output_path: str, frame_width: int, frame_height: int,
                  fps: int = 30, codec: str = 'mp4v'):
         """
-        Initialize video writer
-        
+        Initialize video writer with automatic codec fallback.
+
+        Tries codecs in order: avc1 (H.264) -> XVID -> mp4v.
+        If all MP4 codecs fail, falls back to MJPG with .avi extension.
+
         Args:
             output_path: Path to save video
             frame_width: Frame width
             frame_height: Frame height
             fps: Frames per second
-            codec: Video codec
+            codec: Preferred video codec (overridden by fallback logic)
         """
         self.output_path = output_path
-        fourcc = cv2.VideoWriter_fourcc(*codec)
-        self.writer = cv2.VideoWriter(output_path, fourcc, fps, 
-                                     (frame_width, frame_height))
-        
-        if not self.writer.isOpened():
-            raise RuntimeError(f"Cannot create video writer: {output_path}")
-        
-        logger.info(f"Video writer initialized: {output_path}")
+
+        # Ordered list of (fourcc, path) candidates to try
+        base = output_path.rsplit('.', 1)[0] if '.' in output_path else output_path
+        candidates = [
+            ('avc1', output_path),   # H.264 - best compatibility on Linux
+            ('XVID', output_path),   # XVID MPEG-4
+            ('mp4v', output_path),   # OpenCV default
+            ('MJPG', base + '.avi'), # Last resort: Motion JPEG in AVI container
+        ]
+
+        self.writer = None
+        for fourcc_str, path in candidates:
+            fourcc = cv2.VideoWriter_fourcc(*fourcc_str)
+            writer = cv2.VideoWriter(path, fourcc, fps, (frame_width, frame_height))
+            if writer.isOpened():
+                self.writer = writer
+                self.output_path = path
+                logger.info(f"Video writer initialized with codec={fourcc_str}: {path}")
+                break
+            writer.release()
+
+        if self.writer is None or not self.writer.isOpened():
+            raise RuntimeError(f"Cannot create video writer for: {output_path} (tried all codecs)")
     
     def write_frame(self, frame: np.ndarray) -> bool:
         """
