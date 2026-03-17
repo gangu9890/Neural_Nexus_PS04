@@ -57,6 +57,16 @@ class ObjectDetector:
         logger.info(f"Loading YOLOv8 model: {self.model_name} on {self.device}")
         
         try:
+            # Fix for PyTorch 2.6+ weights_only=True default
+            try:
+                import torch
+                from ultralytics.nn.tasks import DetectionModel
+                if hasattr(torch.serialization, 'add_safe_globals'):
+                    torch.serialization.add_safe_globals([DetectionModel])
+                    logger.info("Added DetectionModel to PyTorch safe globals")
+            except Exception as e:
+                logger.warning(f"Failed to add safe globals, model load might fail on PyTorch 2.6+: {e}")
+
             self.model = YOLO(self.model_name)
             self.model.to(self.device)
             
