@@ -73,13 +73,14 @@ class SafetyDetectionPipeline:
         
         logger.info("Pipeline initialized successfully")
     
-    def run(self, max_frames: int = None, show_fps: bool = True):
+    def run(self, max_frames: int = None, show_fps: bool = True, headless: bool = False):
         """
         Run pipeline on video
         
         Args:
             max_frames: Maximum frames to process (None for all)
             show_fps: Whether to display FPS
+            headless: Whether to run without displaying video window
         """
         logger.info("Starting pipeline execution...")
         
@@ -157,7 +158,8 @@ class SafetyDetectionPipeline:
                        0.6, (0, 255, 0), 1)
             
             # === OUTPUT ===
-            cv2.imshow('Safety Detection Pipeline', display_frame)
+            if not headless:
+                cv2.imshow('Safety Detection Pipeline', display_frame)
             
             if self.video_writer:
                 self.video_writer.write_frame(display_frame)
@@ -169,13 +171,14 @@ class SafetyDetectionPipeline:
                     logger.warning(f"  {incident}")
             
             # Handle user input
-            key = cv2.waitKey(1) & 0xFF
-            if key == ord('q'):
-                logger.info("User quit")
-                break
-            elif key == ord('p'):
-                logger.info("Paused - press any key to continue")
-                cv2.waitKey(0)
+            if not headless:
+                key = cv2.waitKey(1) & 0xFF
+                if key == ord('q'):
+                    logger.info("User quit")
+                    break
+                elif key == ord('p'):
+                    logger.info("Paused - press any key to continue")
+                    cv2.waitKey(0)
             
             # Update statistics
             self.stats['frames_processed'] += 1
@@ -196,7 +199,7 @@ class SafetyDetectionPipeline:
                            f"Incidents: {self.event_classifier.get_incident_summary()}")
         
         # Cleanup
-        self._cleanup()
+        self._cleanup(headless)
         
         # Print final statistics
         self._print_statistics()
@@ -232,13 +235,14 @@ class SafetyDetectionPipeline:
         
         return display_frame
     
-    def _cleanup(self):
+    def _cleanup(self, headless: bool = False):
         """Cleanup resources"""
         logger.info("Cleaning up...")
         self.frame_extractor.release()
         if self.video_writer:
             self.video_writer.release()
-        cv2.destroyAllWindows()
+        if not headless:
+            cv2.destroyAllWindows()
     
     def _print_statistics(self):
         """Print execution statistics"""
@@ -283,6 +287,8 @@ def main():
                        help='Maximum frames to process')
     parser.add_argument('--no-fps', action='store_true',
                        help='Do not display FPS')
+    parser.add_argument('--headless', action='store_true',
+                       help='Run without displaying video window (required for Kaggle/Colab)')
     
     args = parser.parse_args()
     
@@ -296,6 +302,8 @@ def main():
     
     logger.info(f"Video source: {video_source}")
     logger.info(f"Output video: {args.output}")
+    if args.headless:
+        logger.info("Running in headless mode (no UI)")
     
     # Create and run pipeline
     pipeline = SafetyDetectionPipeline(
@@ -305,7 +313,8 @@ def main():
     
     pipeline.run(
         max_frames=args.max_frames,
-        show_fps=not args.no_fps
+        show_fps=not args.no_fps,
+        headless=args.headless
     )
     
     # Save statistics
