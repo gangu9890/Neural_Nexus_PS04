@@ -57,18 +57,39 @@ class ObjectDetector:
         logger.info(f"Loading YOLOv8 model: {self.model_name} on {self.device}")
         
         try:
+        try:
             # Fix for PyTorch 2.6+ weights_only=True default
             try:
                 import torch
-                # Set ultralytics settings to allow weights_only=False globally if available
+                # 1. Try Ultralytics settings override
                 from ultralytics import settings
-                if 'weights_only' in settings:
+                if hasattr(settings, 'update'):
                     settings.update({'weights_only': False})
                 
-                # Also add common PyTorch classes to safe globals just in case
+                # 2. Add all ultralytics modules to safe globals
                 from ultralytics.nn.tasks import DetectionModel
+                import ultralytics.nn.modules as nn_modules
+                
                 if hasattr(torch.serialization, 'add_safe_globals'):
-                    torch.serialization.add_safe_globals([DetectionModel, torch.nn.modules.container.Sequential])
+                    # Add standard PyTorch containers
+                    safe_list = [
+                        torch.nn.modules.container.Sequential,
+                        torch.nn.modules.container.ModuleList,
+                        torch.nn.modules.activation.SiLU,
+                        torch.nn.modules.conv.Conv2d,
+                        torch.nn.modules.batchnorm.BatchNorm2d,
+                        torch.nn.modules.pooling.MaxPool2d,
+                        torch.nn.modules.upsampling.Upsample,
+                        DetectionModel
+                    ]
+                    
+                    # Add all Ultralytics custom modules
+                    for name in dir(nn_modules):
+                        obj = getattr(nn_modules, name)
+                        if isinstance(obj, type):
+                            safe_list.append(obj)
+                            
+                    torch.serialization.add_safe_globals(safe_list)
                     logger.info("Added necessary classes to PyTorch safe globals")
             except Exception as e:
                 logger.warning(f"Failed to configure safe globals/settings: {e}")
