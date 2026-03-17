@@ -60,12 +60,18 @@ class ObjectDetector:
             # Fix for PyTorch 2.6+ weights_only=True default
             try:
                 import torch
+                # Set ultralytics settings to allow weights_only=False globally if available
+                from ultralytics import settings
+                if 'weights_only' in settings:
+                    settings.update({'weights_only': False})
+                
+                # Also add common PyTorch classes to safe globals just in case
                 from ultralytics.nn.tasks import DetectionModel
                 if hasattr(torch.serialization, 'add_safe_globals'):
-                    torch.serialization.add_safe_globals([DetectionModel])
-                    logger.info("Added DetectionModel to PyTorch safe globals")
+                    torch.serialization.add_safe_globals([DetectionModel, torch.nn.modules.container.Sequential])
+                    logger.info("Added necessary classes to PyTorch safe globals")
             except Exception as e:
-                logger.warning(f"Failed to add safe globals, model load might fail on PyTorch 2.6+: {e}")
+                logger.warning(f"Failed to configure safe globals/settings: {e}")
 
             self.model = YOLO(self.model_name)
             self.model.to(self.device)
